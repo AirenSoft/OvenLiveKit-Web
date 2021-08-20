@@ -1,0 +1,32 @@
+{
+  "name": "ovenlivekit",
+  "version": "1.0.0",
+  "description": "OvenLiveKit for Web is an open source JavaScript SDK suite for live streaming from web browsers to OvenMediaEngine.",
+  "main": "dist/OvenLiveKit.min.js",
+  "scripts": {
+    "start": "webpack serve --open --config webpack.dev.js",
+    "watch": "webpack watch --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AirenSoft/OvenLiveKit-Web.git"
+  },
+  "keywords": [
+    "Sub-Second Latency Streaming",
+    "WebRTC",
+    "OvenMediaEngine",
+    "HTML5"
+  ],
+  "author": "AirenSoft Co., Ltd.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AirenSoft/OvenLiveKit-Web/issues"
+  },
+  "homepage": "https://github.com/AirenSoft/OvenLiveKit-Web#readme",
+  "devDependencies": {
+    "webpack": "^5.48.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
+  }
+}

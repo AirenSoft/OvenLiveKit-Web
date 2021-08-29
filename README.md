@@ -3,7 +3,7 @@
 ## What is OvenLiveKit for Web?
 In short, OvenLiveKit for Web is **Open-Source** and **HTML5 Streaming SDK** (JavaScript) for [OvenMediaEngine](https://github.com/AirenSoft/OvenMediaEngine), Open-Source Streaming Server with Sub-Second Latency.
 
-OvenLiveKit for Web can send media streams to OvenMediaEngine. This means it can capture the user's webcam from any web browser that supports WebRTC and tranmit it directly to OvenMediaEngine's WebRTC Provider. This makes it easy to build web conferencing calls, video chats, and more.
+OvenLiveKit for Web can send media streams to OvenMediaEngine. This means it can capture the user's webcam from any web browser that supports WebRTC and trasnmit it directly to OvenMediaEngine's WebRTC Provider. This makes it easy to build web conferencing calls, video chats, and more.
 
 If you're interested, try out [**WebRTC Input Demo**](https://demo.ovenplayer.com/demo_input.html) based on OvenPlayer.
 

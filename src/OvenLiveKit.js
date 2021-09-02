@@ -331,34 +331,56 @@ function addMethod(instance) {
 
     }
 
-    function removeH264(sdp) {
+    function appendFmtp(sdp) {
 
-        let newLines = [];
-        let lines = sdp.split('\n');
+        const fmtpStr = instance.connectionConfig.sdp.appendFmtp;
+
+        const lines = sdp.split('\n');
+        const payloads = [];
 
         for (let i = 0; i < lines.length; i++) {
 
             if (lines[i].indexOf('m=video') === 0) {
-                newLines.push(lines[i].replace(' 100', ''));
-            } else if (lines[i].indexOf('100') > -1) {
 
-            } else {
-                newLines.push(lines[i]);
+                let tokens = lines[i].split(' ')
 
-                if (lines[i].indexOf('a=rtpmap:101') > -1) {
-                    // newLines.push('a=fmtp:101 useadaptivelayering=true;useadaptivelayering_v2=true');
+                for (let j = 3; j < tokens.length; j++) {
+
+                    payloads.push(tokens[j].replace('\r', ''));
+                }
+
+                break;
+            }
+        }
+
+        for (let i = 0; i < payloads.length; i++) {
+
+            let fmtpLineFound = false;
+
+            for (let j = 0; j < lines.length; j++) {
+
+                if (lines[j].indexOf('a=fmtp:' + payloads[i]) === 0) {
+                    fmtpLineFound = true;
+                    lines[j] += ';' + fmtpStr;
+                }
+            }
+
+            if (!fmtpLineFound) {
+
+                for (let j = 0; j < lines.length; j++) {
+
+                    if (lines[j].indexOf('a=rtpmap:' + payloads[i]) === 0) {
+
+                        lines[j] += '\na=fmtp:' + payloads[i] + ' ' + fmtpStr;
+                    }
                 }
             }
         }
 
-        return newLines.join('\n')
+        return lines.join('\n')
     }
 
     function createPeerConnection(id, peerId, offer, candidates, iceServers) {
-
-        // console.log(removeH264(offer.sdp));
-
-        // offer.sdp = removeH264(offer.sdp);
 
         let peerConnectionConfig = {};
 
@@ -470,11 +492,21 @@ function addMethod(instance) {
             offer.sdp = setBitrateLimit(offer.sdp, 'video', instance.connectionConfig.maxVideoBitrate);
         }
 
+        if (instance.connectionConfig.sdp && instance.connectionConfig.sdp.appendFmtp) {
+
+            offer.sdp = appendFmtp(offer.sdp);
+        }
+
         peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
             .then(function () {
 
                 peerConnection.createAnswer()
                     .then(function (answer) {
+
+                        if (instance.connectionConfig.sdp && instance.connectionConfig.sdp.appendFmtp) {
+
+                            answer.sdp = appendFmtp(answer.sdp);
+                        }
 
                         peerConnection.setLocalDescription(answer)
                             .then(function () {
@@ -655,7 +687,7 @@ function addMethod(instance) {
 // static methods
 OvenLiveKit.create = function (options) {
 
-    console.info(logEventHeader, 'Create WebRTC Input');
+    console.info(logEventHeader, 'Create WebRTC Input v1.0.1');
 
     let instance = {};
 

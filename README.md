@@ -288,6 +288,11 @@ ovenLivekit.getUserMedia().then(function () {
     - Number: Unit is Kbps.
 - If set limits max bitrates of streaming to OvenMediaEngine.
 
+##### `sdp.appendFmtp`
+- type
+    - String: String you want to append to a=fmtp of SDP.
+- If set video format is appended to the a=fmtp sections of SDP.
+
 ## For more information
 * [WebRTC Input in OvenPlayer Demo](https://demo.ovenplayer.com/demo_input.html)
   * Test Player based on OvenPlayer. 

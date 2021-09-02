@@ -1,6 +1,6 @@
 {
   "name": "ovenlivekit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OvenLiveKit for Web is an open source JavaScript SDK suite for live streaming from web browsers to OvenMediaEngine.",
   "main": "dist/OvenLiveKit.min.js",
   "scripts": {

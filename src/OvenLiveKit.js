@@ -33,6 +33,52 @@ function findIp(string) {
     return result;
 }
 
+function checkIOSVersion() {
+    var agent = window.navigator.userAgent,
+        start = agent.indexOf('OS ');
+    if ((agent.indexOf('iPhone') > -1 || agent.indexOf('iPad') > -1) && start > -1) {
+        return window.Number(agent.substr(start + 3, 3).replace('_', '.'));
+    }
+    return 0;
+}
+
+function getFormatNumber(sdp, format) {
+
+    const lines = sdp.split('\n');
+    let formatNumber = -1;
+
+    for (let i = 0; i < lines.length - 1; i++) {
+
+        lines[i] = lines[i].toLowerCase();
+
+        if (lines[i].indexOf('a=rtpmap') > -1 && lines[i].indexOf(format.toLowerCase()) > -1) {
+            // parsing "a=rtpmap:100 H264/90000" line
+            formatNumber = lines[i].split(' ')[0].split(':')[1];
+            break;
+        }
+    }
+
+    return formatNumber;
+}
+
+function removeFormat(sdp, formatNumber) {
+    let newLines = [];
+    let lines = sdp.split('\n');
+
+    for (let i = 0; i < lines.length; i++) {
+
+        if (lines[i].indexOf('m=video') === 0) {
+            newLines.push(lines[i].replace(' ' + formatNumber + '', ''));
+        } else if (lines[i].indexOf(formatNumber + '') > -1) {
+
+        } else {
+            newLines.push(lines[i]);
+        }
+    }
+
+    return newLines.join('\n')
+}
+
 async function getStreamForDeviceCheck() {
 
     // High resolution video constraints makes browser to get maximum resolution of video device.
@@ -486,6 +532,15 @@ function addMethod(instance) {
             peerConnection.addTrack(track, instance.stream);
         });
 
+
+        if (checkIOSVersion() >= 15) {
+            const formatNumber = getFormatNumber(offer.sdp, 'H264');
+
+            if (formatNumber > 0) {
+                offer.sdp = removeFormat(offer.sdp, formatNumber);
+            }
+        }
+
         if (instance.connectionConfig.maxVideoBitrate) {
 
             // if bandwith limit is set. modify sdp from ome to limit acceptable bandwidth of ome
@@ -502,6 +557,16 @@ function addMethod(instance) {
 
                 peerConnection.createAnswer()
                     .then(function (answer) {
+
+                        if (checkIOSVersion() >= 15) {
+
+                            const formatNumber = getFormatNumber(answer.sdp, 'H264');
+
+                            if (formatNumber > 0) {
+
+                                answer.sdp = removeFormat(answer.sdp, formatNumber);
+                            }
+                        }
 
                         if (instance.connectionConfig.sdp && instance.connectionConfig.sdp.appendFmtp) {
 
@@ -687,7 +752,7 @@ function addMethod(instance) {
 // static methods
 OvenLiveKit.create = function (options) {
 
-    console.info(logEventHeader, 'Create WebRTC Input v1.0.1');
+    console.info(logEventHeader, 'Create WebRTC Input v1.0.2');
 
     let instance = {};
 

@@ -44,7 +44,7 @@ function checkIOSVersion() {
 
 function getFormatNumber(sdp, format) {
 
-    const lines = sdp.split('\n');
+    const lines = sdp.split('\r\n');
     let formatNumber = -1;
 
     for (let i = 0; i < lines.length - 1; i++) {
@@ -63,7 +63,7 @@ function getFormatNumber(sdp, format) {
 
 function removeFormat(sdp, formatNumber) {
     let newLines = [];
-    let lines = sdp.split('\n');
+    let lines = sdp.split('\r\n');
 
     for (let i = 0; i < lines.length; i++) {
 
@@ -76,7 +76,7 @@ function removeFormat(sdp, formatNumber) {
         }
     }
 
-    return newLines.join('\n')
+    return newLines.join('\r\n')
 }
 
 async function getStreamForDeviceCheck() {
@@ -266,7 +266,7 @@ function addMethod(instance) {
     // From https://webrtchacks.com/limit-webrtc-bandwidth-sdp/
     function setBitrateLimit(sdp, media, bitrate) {
 
-        let lines = sdp.split('\n');
+        let lines = sdp.split('\r\n');
         let line = -1;
 
         for (let i = 0; i < lines.length; i++) {
@@ -294,7 +294,7 @@ function addMethod(instance) {
 
             lines[line] = 'b=AS:' + bitrate;
 
-            return lines.join('\n');
+            return lines.join('\r\n');
         }
 
         // Add a new b line
@@ -303,7 +303,7 @@ function addMethod(instance) {
         newLines.push('b=AS:' + bitrate)
         newLines = newLines.concat(lines.slice(line, lines.length))
 
-        return newLines.join('\n')
+        return newLines.join('\r\n')
     }
 
     function initWebSocket(connectionUrl) {
@@ -381,7 +381,7 @@ function addMethod(instance) {
 
         const fmtpStr = instance.connectionConfig.sdp.appendFmtp;
 
-        const lines = sdp.split('\n');
+        const lines = sdp.split('\r\n');
         const payloads = [];
 
         for (let i = 0; i < lines.length; i++) {
@@ -392,7 +392,7 @@ function addMethod(instance) {
 
                 for (let j = 3; j < tokens.length; j++) {
 
-                    payloads.push(tokens[j].replace('\r', ''));
+                    payloads.push(tokens[j]);
                 }
 
                 break;
@@ -417,13 +417,13 @@ function addMethod(instance) {
 
                     if (lines[j].indexOf('a=rtpmap:' + payloads[i]) === 0) {
 
-                        lines[j] += '\na=fmtp:' + payloads[i] + ' ' + fmtpStr;
+                        lines[j] += '\r\na=fmtp:' + payloads[i] + ' ' + fmtpStr;
                     }
                 }
             }
         }
 
-        return lines.join('\n')
+        return lines.join('\r\n')
     }
 
     function createPeerConnection(id, peerId, offer, candidates, iceServers) {
@@ -557,6 +557,9 @@ function addMethod(instance) {
 
                 peerConnection.createAnswer()
                     .then(function (answer) {
+
+                        console.log(logHeader, 'Answer')
+                        console.log(answer.sdp)
 
                         if (checkIOSVersion() >= 15) {
 

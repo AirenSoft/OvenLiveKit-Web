@@ -79,13 +79,20 @@ function removeFormat(sdp, formatNumber) {
     return newLines.join('\r\n')
 }
 
-async function getStreamForDeviceCheck() {
+async function getStreamForDeviceCheck(type) {
 
     // High resolution video constraints makes browser to get maximum resolution of video device.
     const constraints = {
-        audio: { deviceId: undefined },
-        video: { deviceId: undefined, width: 1920, height: 1080 }
     };
+
+    if (type === 'both') {
+        constraints.audio = true;
+        constraints.video = true;
+    } else if (type === 'audio') {
+        constraints.audio = true;
+    } else if (type === 'video') {
+        constraints.video = true;
+    }
 
     return await navigator.mediaDevices.getUserMedia(constraints);
 }
@@ -93,8 +100,6 @@ async function getStreamForDeviceCheck() {
 async function getDevices() {
 
     return await navigator.mediaDevices.enumerateDevices();
-
-
 }
 
 function gotDevices(deviceInfos) {
@@ -426,6 +431,40 @@ function addMethod(instance) {
         return lines.join('\r\n')
     }
 
+    function appendOrientation(sdp) {
+
+        const lines = sdp.split('\r\n');
+        const payloads = [];
+
+        for (let i = 0; i < lines.length; i++) {
+
+            if (lines[i].indexOf('m=video') === 0) {
+
+                let tokens = lines[i].split(' ')
+
+                for (let j = 3; j < tokens.length; j++) {
+
+                    payloads.push(tokens[j]);
+                }
+
+                break;
+            }
+        }
+
+        for (let i = 0; i < payloads.length; i++) {
+
+            for (let j = 0; j < lines.length; j++) {
+
+                if (lines[j].indexOf('a=rtpmap:' + payloads[i]) === 0) {
+
+                    lines[j] += '\r\na=extmap:' + payloads[i] + ' urn:3gpp:video-orientation';
+                }
+            }
+        }
+
+        return lines.join('\r\n')
+    }
+
     function createPeerConnection(id, peerId, offer, candidates, iceServers) {
 
         let peerConnectionConfig = {};
@@ -552,14 +591,13 @@ function addMethod(instance) {
             offer.sdp = appendFmtp(offer.sdp);
         }
 
+        // offer.sdp = appendOrientation(offer.sdp);
+
         peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
             .then(function () {
 
                 peerConnection.createAnswer()
                     .then(function (answer) {
-
-                        console.log(logHeader, 'Answer')
-                        console.log(answer.sdp)
 
                         if (checkIOSVersion() >= 15) {
 
@@ -769,7 +807,33 @@ OvenLiveKit.create = function (options) {
 
 OvenLiveKit.getDevices = async function () {
 
-    await getStreamForDeviceCheck();
+    try {
+        // First check both audio and video sources are available.
+        await getStreamForDeviceCheck('both');
+    } catch (e) {
+
+        console.warn(logHeader, 'Can not find Video and Audio devices', e);
+
+        let videoFound = null;
+        let audioFound = null;
+
+        try {
+            videoFound = await getStreamForDeviceCheck('video');
+        } catch (e) {
+            console.warn(logHeader, 'Can not find Video devices', e);
+        }
+
+        try {
+            audioFound = await getStreamForDeviceCheck('audio');
+        } catch (e) {
+            console.warn(logHeader, 'Can not find Audio devices', e);
+        }
+
+        if (!videoFound && !audioFound) {
+            throw new Error('No input devices were found.');
+        }
+    }
+
     const deviceInfos = await getDevices();
     return gotDevices(deviceInfos)
 };

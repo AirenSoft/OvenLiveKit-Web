@@ -40,7 +40,7 @@ import OvenLiveKit from 'ovenlivekit'
 This is the simplest example of sending a device media stream such as a webcam to OvenMediaEngine's WebRTC Provider.
 ```JavaScript
 // Initialize OvenLiveKit
-let ovenLivekit = OvenLiveKit.create();
+const ovenLivekit = OvenLiveKit.create();
 
 // Get media stream from user device
 ovenLivekit.getUserMedia().then(function () {
@@ -104,7 +104,7 @@ var config = {
 }
 
 // Initialize ovenLivekit instance
-let ovenLivekit = OvenLiveKit.create(config);
+const ovenLivekit = OvenLiveKit.create(config);
 
 // Release all resources and destroy the instance
 ovenLivekit.remove();
@@ -219,7 +219,7 @@ OvenLiveKit also provides APIs to control a media stream from a user device.
 ```
 ```JavaScript
 // Create instance
-let ovenLivekit = OvenLiveKit.create();
+const ovenLivekit = OvenLiveKit.create();
 
 // Attaching video element for playing device stream
 ovenLivekit.attachMedia(document.getElementById('myVideo'));
@@ -254,7 +254,7 @@ ovenLivekit.getUserMedia(constraints).then(function (stream) {
 Congrats on getting the media stream from the user device and then ready to stream into OvenMediaEngine.
 ```JavaScript
 // Create instance
-let ovenLivekit = OvenLiveKit.create();
+const ovenLivekit = OvenLiveKit.create();
 
 ovenLivekit.getUserMedia().then(function () {
 
@@ -292,6 +292,9 @@ ovenLivekit.getUserMedia().then(function () {
 - type
     - String: String you want to append to a=fmtp of SDP.
 - If set video format is appended to the a=fmtp sections of SDP.
+
+#### `instance.stopStreaming()`
+- Close peer connection and websocket associated with OvenMediaEngine.
 
 ## For more information
 * [WebRTC Input in OvenPlayer Demo](https://demo.ovenplayer.com/demo_input.html)

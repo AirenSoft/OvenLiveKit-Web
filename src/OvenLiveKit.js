@@ -1,5 +1,6 @@
 const OvenLiveKit = {};
 
+const version = '1.0.4';
 const logHeader = 'OvenLiveKit.js :';
 const logEventHeader = 'OvenLiveKit.js ====';
 
@@ -31,15 +32,6 @@ function findIp(string) {
     }
 
     return result;
-}
-
-function checkIOSVersion() {
-    var agent = window.navigator.userAgent,
-        start = agent.indexOf('OS ');
-    if ((agent.indexOf('iPhone') > -1 || agent.indexOf('iPad') > -1) && start > -1) {
-        return window.Number(agent.substr(start + 3, 3).replace('_', '.'));
-    }
-    return 0;
 }
 
 function getFormatNumber(sdp, format) {
@@ -143,12 +135,10 @@ function gotDevices(deviceInfos) {
 
 function initConfig(instance, options) {
 
-    instance.stream = null;
+    instance.inputStream = null;
     instance.webSocket = null;
     instance.peerConnection = null;
     instance.connectionConfig = {};
-
-    instance.status = 'creating';
 
     instance.videoElement = null;
     instance.connectionUrl = null;
@@ -159,7 +149,6 @@ function initConfig(instance, options) {
     } else {
         instance.callbacks = {};
     }
-
 }
 
 function addMethod(instance) {
@@ -186,14 +175,14 @@ function addMethod(instance) {
             };
         }
 
-        console.info(logHeader, 'Requested Constraint To Input Devices', constraints);
+        console.info(logHeader, 'Request Stream To Input Devices With Constraints', constraints);
 
         return navigator.mediaDevices.getUserMedia(constraints)
             .then(function (stream) {
 
                 console.info(logHeader, 'Received Media Stream From Input Device', stream);
 
-                instance.stream = stream;
+                instance.inputStream = stream;
 
                 let elem = instance.videoElement;
 
@@ -230,14 +219,14 @@ function addMethod(instance) {
             constraints = {};
         }
 
-        console.info(logHeader, 'Requested Constraint To Display', constraints);
+        console.info(logHeader, 'Request Stream To Display With Constraints', constraints);
 
         return navigator.mediaDevices.getDisplayMedia(constraints)
             .then(function (stream) {
 
                 console.info(logHeader, 'Received Media Stream From Display', stream);
 
-                instance.stream = stream;
+                instance.inputStream = stream;
 
                 let elem = instance.videoElement;
 
@@ -371,10 +360,9 @@ function addMethod(instance) {
 
         webSocket.onclose = function (e) {
 
-            if (!instance.removing) {
+            if (!instance.webSocketClosedByUser) {
 
                 if (instance.callbacks.connectionClosed) {
-
                     instance.callbacks.connectionClosed('websocket', e);
                 }
             }
@@ -565,20 +553,11 @@ function addMethod(instance) {
         instance.peerConnection = peerConnection;
 
         // set local stream
-        instance.stream.getTracks().forEach(function (track) {
+        instance.inputStream.getTracks().forEach(function (track) {
 
             console.info(logHeader, 'Add Track To Peer Connection', track);
-            peerConnection.addTrack(track, instance.stream);
+            peerConnection.addTrack(track, instance.inputStream);
         });
-
-
-        if (checkIOSVersion() >= 15) {
-            const formatNumber = getFormatNumber(offer.sdp, 'H264');
-
-            if (formatNumber > 0) {
-                offer.sdp = removeFormat(offer.sdp, formatNumber);
-            }
-        }
 
         if (instance.connectionConfig.maxVideoBitrate) {
 
@@ -598,16 +577,6 @@ function addMethod(instance) {
 
                 peerConnection.createAnswer()
                     .then(function (answer) {
-
-                        if (checkIOSVersion() >= 15) {
-
-                            const formatNumber = getFormatNumber(answer.sdp, 'H264');
-
-                            if (formatNumber > 0) {
-
-                                answer.sdp = removeFormat(answer.sdp, formatNumber);
-                            }
-                        }
 
                         if (instance.connectionConfig.sdp && instance.connectionConfig.sdp.appendFmtp) {
 
@@ -651,8 +620,6 @@ function addMethod(instance) {
 
             if (e.candidate && e.candidate.candidate) {
 
-                console.info(logHeader, 'Candidate Sent', '\n', e.candidate.candidate, '\n', e);
-
                 sendMessage(instance.webSocket, {
                     id: id,
                     peer_id: peerId,
@@ -675,8 +642,6 @@ function addMethod(instance) {
             if (state === 'connected') {
 
                 if (instance.callbacks.connected) {
-
-                    console.info(logHeader, 'Iceconnection Connected', e);
                     instance.callbacks.connected(e);
                 }
             }
@@ -684,7 +649,6 @@ function addMethod(instance) {
             if (state === 'failed' || state === 'disconnected' || state === 'closed') {
 
                 if (instance.callbacks.connectionClosed) {
-
                     console.error(logHeader, 'Iceconnection Closed', e);
                     instance.callbacks.connectionClosed('ice', e);
                 }
@@ -710,6 +674,49 @@ function addMethod(instance) {
                         errorHandler(error);
                     });
             }
+        }
+    }
+
+    function closePeerConnection() {
+        if (instance.peerConnection) {
+
+            // remove tracks from peer connection
+            instance.peerConnection.getSenders().forEach(function (sender) {
+                instance.peerConnection.removeTrack(sender);
+            });
+
+            instance.peerConnection.close();
+            instance.peerConnection = null;
+            delete instance.peerConnection;
+        }
+    }
+
+    function closeWebSocket() {
+
+        if (instance.webSocket) {
+
+            instance.webSocket.close();
+            instance.webSocket = null;
+            delete instance.webSocket;
+        }
+    }
+
+    function closeInputStream() {
+        // release video, audio stream
+        if (instance.inputStream) {
+
+            instance.inputStream.getTracks().forEach(track => {
+
+                track.stop();
+                instance.inputStream.removeTrack(track);
+            });
+
+            if (instance.videoElement) {
+                instance.videoElement.srcObject = null;
+            }
+
+            instance.inputStream = null;
+            delete instance.inputStream;
         }
     }
 
@@ -741,63 +748,39 @@ function addMethod(instance) {
         initWebSocket(connectionUrl);
     };
 
+    instance.stopStreaming = function () {
+
+        instance.webSocketClosedByUser = true;
+
+        closeWebSocket();
+        closePeerConnection();
+    };
+
     instance.remove = function () {
 
-        instance.removing = true;
+        instance.webSocketClosedByUser = true;
 
-        // first release peer connection with ome
-        if (instance.peerConnection) {
-
-            // remove tracks from peer connection
-            instance.peerConnection.getSenders().forEach(function (sender) {
-                instance.peerConnection.removeTrack(sender);
-            });
-
-            instance.peerConnection.close();
-            instance.peerConnection = null;
-            delete instance.peerConnection;
-        }
-
-        // release video, audio stream
-        if (instance.stream) {
-
-            instance.stream.getTracks().forEach(track => {
-
-                track.stop();
-                instance.stream.removeTrack(track);
-            });
-
-            if (instance.videoElement) {
-                instance.videoElement.srcObject = null;
-            }
-
-            instance.stream = null;
-            delete instance.stream;
-        }
-
-        // release websocket
-        if (instance.webSocket) {
-
-            instance.webSocket.close();
-            instance.webSocket = null;
-            delete instance.webSocket;
-        }
-
-        instance.status = 'removed';
+        closeWebSocket();
+        closePeerConnection();
+        closeInputStream();
 
         console.info(logEventHeader, 'Removed');
 
     };
 }
 
+OvenLiveKit.getVersion = function () {
+    return version;
+}
+
 // static methods
 OvenLiveKit.create = function (options) {
 
-    console.info(logEventHeader, 'Create WebRTC Input v1.0.2');
+    console.info(logEventHeader, 'Create WebRTC Input ' + version);
 
     let instance = {};
 
-    instance.removing = false;
+    instance.webSocketClosedByUser = false;
 
     initConfig(instance, options);
     addMethod(instance);

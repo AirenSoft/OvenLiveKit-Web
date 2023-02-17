@@ -6,7 +6,7 @@ OvenLiveKit for Web is a JavaScript-based Live Streaming Encoder that supports W
 ## Demo
 <img src="./assets/05_OvenSpace_230214.png" style="max-width: 100%; height: auto;">
 
-OvenSpace is a sub-second latency streaming demo service using [OvenMediaEngine](https://github.com/AirenSoft/OvenMediaEngine), [OvenPlayer](https://github.com/AirenSoft/OvenPlayer) and [OvenLiveKit](https://github.com/AirenSoft/OvenLiveKit-Web). You can experience OvenLiveKit in the **[OvenSpace Demo](https://space.ovenplayer.com/)** and see examples of applying in [OvenSpace Repository](https://github.com/AirenSoft/OvenSpace).
+OvenSpace is a sub-second latency streaming demo service using [OvenMediaEngine](https://github.com/AirenSoft/OvenMediaEngine), [OvenPlayer](https://github.com/AirenSoft/OvenPlayer) and [OvenLiveKit](https://github.com/AirenSoft/OvenLiveKit-Web). You can experience OvenLiveKit in the **[OvenSpace Demo](https://space.ovenplayer.com/)** and see examples of how it can be applied in the [OvenSpace Repository](https://github.com/AirenSoft/OvenSpace).
 
 ## Features
 * Streaming to OvenMediaEngine's WebRTC Provider.  
@@ -314,6 +314,6 @@ AirenSoft aims to make it easier for you to build a stable broadcasting/streamin
 Therefore, we will continue developing and providing the most optimized tools for smooth Sub-Second Latency Streaming.
 
 Would you please click on each link below for details:
-* ["JavaScript-based Live Streaming Encdoer" **OvenLiveKit**](https://github.com/AirenSoft/OvenLiveKit-Web)
+* ["JavaScript-based Live Streaming Encoder" **OvenLiveKit**](https://github.com/AirenSoft/OvenLiveKit-Web)
 * ["Sub-Second Latency Streaming Server with LLHLS and WebRTC" **OvenMediaEngine**](https://github.com/AirenSoft/OvenMediaEngine)
 * ["JavaScript-based Player with LLHLS and WebRTC" **OvenPlayer**](https://github.com/AirenSoft/OvenPlayer)

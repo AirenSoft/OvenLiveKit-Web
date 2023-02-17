@@ -6,7 +6,7 @@ OvenLiveKit for Web is a JavaScript-based Live Streaming Encoder that supports W
 ## Demo
 <img src="./assets/05_OvenSpace_230214.png" style="max-width: 100%; height: auto;">
 
-OvenSpace is a sub-second latency streaming demo service using [OvenMediaEngine](https://github.com/AirenSoft/OvenMediaEngine), [OvenPlayer](https://github.com/AirenSoft/OvenPlayer) and [OvenLiveKit](https://github.com/AirenSoft/OvenLiveKit-Web). You can experience OvenLiveKit in the **[OvenSpace Demo](https://space.ovenplayer.com/)** and and see examples of applying in [OvenSpace Repository](https://github.com/AirenSoft/OvenSpace).
+OvenSpace is a sub-second latency streaming demo service using [OvenMediaEngine](https://github.com/AirenSoft/OvenMediaEngine), [OvenPlayer](https://github.com/AirenSoft/OvenPlayer) and [OvenLiveKit](https://github.com/AirenSoft/OvenLiveKit-Web). You can experience OvenLiveKit in the **[OvenSpace Demo](https://space.ovenplayer.com/)** and see examples of applying in [OvenSpace Repository](https://github.com/AirenSoft/OvenSpace).
 
 ## Features
 * Streaming to OvenMediaEngine's WebRTC Provider.  
@@ -126,7 +126,7 @@ To make the library lightweight and easy to use, only callback options are imple
 - parameters 
     - event: event object of iceconnectionstatechange
 - This is a callback that occurs when the `RTCPeerConnection.iceConnectionState` becomes `connected`.
-- It means that the media stream is normally being transmitted to OvenMediaEngine's WebRTC Provider.
+- It means that the media stream is being transmitted normally to OvenMediaEngine's WebRTC Provider.
 
 ##### `callbacks.connectionClosed`
 - type

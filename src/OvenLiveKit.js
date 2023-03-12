@@ -1,6 +1,6 @@
 const OvenLiveKit = {};
 
-const version = '1.0.4';
+const version = '1.0.5';
 const logHeader = 'OvenLiveKit.js :';
 const logEventHeader = 'OvenLiveKit.js ====';
 
@@ -43,14 +43,46 @@ function getFormatNumber(sdp, format) {
 
         lines[i] = lines[i].toLowerCase();
 
-        if (lines[i].indexOf('a=rtpmap') > -1 && lines[i].indexOf(format.toLowerCase()) > -1) {
+        if (lines[i].indexOf('a=rtpmap') === 0 && lines[i].indexOf(format.toLowerCase()) > -1) {
             // parsing "a=rtpmap:100 H264/90000" line
+            // a=rtpmap:<payload type> <encoding name>/<clock rate>[/<encoding parameters >]
             formatNumber = lines[i].split(' ')[0].split(':')[1];
             break;
         }
     }
 
     return formatNumber;
+}
+
+function setPreferredVideoFormat(sdp, formatName) {
+
+    const formatNumber = getFormatNumber(sdp, formatName);
+
+    if (formatNumber === -1) {
+        return sdp;
+    }
+
+    let newLines = [];
+    const lines = sdp.split('\r\n');
+
+    for (let i = 0; i < lines.length - 1; i++) {
+
+        const line = lines[i];
+
+        if (line.indexOf('m=video') === 0) {
+
+            // m=<media> <port>/<number of ports> <transport> <fmt list>
+            const others = line.split(' ').slice(0, 3);
+            const formats = line.split(' ').slice(3);
+            formats.sort(function (x, y) { return x == formatNumber ? -1 : y == formatNumber ? 1 : 0; });
+            newLines.push(others.concat(formats).join(' '));
+        } else {
+            newLines.push(line);
+        }
+
+    }
+
+    return newLines.join('\r\n') + '\r\n';
 }
 
 function removeFormat(sdp, formatNumber) {
@@ -570,7 +602,13 @@ function addMethod(instance) {
             offer.sdp = appendFmtp(offer.sdp);
         }
 
+        if (instance.connectionConfig.preferredVideoFormat) {
+            offer.sdp = setPreferredVideoFormat(offer.sdp, instance.connectionConfig.preferredVideoFormat)
+        }
+
+
         // offer.sdp = appendOrientation(offer.sdp);
+        console.info(logHeader, 'Modified offer sdp\n\n' + offer.sdp);
 
         peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
             .then(function () {
@@ -582,6 +620,9 @@ function addMethod(instance) {
 
                             answer.sdp = appendFmtp(answer.sdp);
                         }
+
+                        answer.sdp = setPreferredVideoFormat(answer.sdp, instance.connectionConfig.preferredVideoFormat)
+                        console.info(logHeader, 'Modified answer sdp\n\n' + answer.sdp);
 
                         peerConnection.setLocalDescription(answer)
                             .then(function () {
@@ -738,7 +779,7 @@ function addMethod(instance) {
 
     instance.startStreaming = function (connectionUrl, connectionConfig) {
 
-        console.info(logEventHeader, 'Start Streaming');
+        console.info(logEventHeader, 'Start Streaming with connectionConfig', connectionConfig);
 
         if (connectionConfig) {
 

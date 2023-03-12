@@ -271,6 +271,11 @@ ovenLivekit.getUserMedia().then(function () {
 - When this API is called, the media stream starts to be streamed according to OvenMediaEngine's signaling protocol.
 
 #### `ConnectionConfig`
+
+##### `preferredVideoFormat`
+- type
+    - String: Video codec name (eq. H256, VP8)
+- If set the specified codec will be preferred if available.
 ##### `iceServers`
 - type
     - [`RTCConfiguration.iceServers`](https://developer.mozilla.org/en-US/docs/Web/API/RTCConfiguration/iceServers)
@@ -288,6 +293,7 @@ ovenLivekit.getUserMedia().then(function () {
 - type
     - String: String you want to append to a=fmtp of SDP.
 - If set video format is appended to the a=fmtp sections of SDP.
+
 
 #### `instance.stopStreaming()`
 - Close peer connection and websocket associated with OvenMediaEngine.

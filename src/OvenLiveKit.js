@@ -1,6 +1,6 @@
 const OvenLiveKit = {};
 
-const version = '1.0.5';
+const version = '1.1.0';
 const logHeader = 'OvenLiveKit.js :';
 const logEventHeader = 'OvenLiveKit.js ====';
 
@@ -621,7 +621,10 @@ function addMethod(instance) {
                             answer.sdp = appendFmtp(answer.sdp);
                         }
 
-                        answer.sdp = setPreferredVideoFormat(answer.sdp, instance.connectionConfig.preferredVideoFormat)
+                        if (instance.connectionConfig.preferredVideoFormat) {
+                            answer.sdp = setPreferredVideoFormat(answer.sdp, instance.connectionConfig.preferredVideoFormat)
+                        }
+
                         console.info(logHeader, 'Modified answer sdp\n\n' + answer.sdp);
 
                         peerConnection.setLocalDescription(answer)

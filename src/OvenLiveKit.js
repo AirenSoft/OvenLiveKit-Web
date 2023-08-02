@@ -289,6 +289,39 @@ function addMethod(instance) {
             });
     }
 
+    function getMediaStream(stream) {
+        // Check if a valid stream is provided
+        if (!stream || !(stream instanceof MediaStream)) {
+            
+            const error = new Error("Invalid MediaStream provided");
+            console.error(logHeader, 'Invalid MediaStream', error);
+            errorHandler(error);
+    
+            return new Promise(function (resolve, reject) {
+                reject(error);
+            });
+        }
+    
+        console.info(logHeader, 'Received Media Stream', stream);
+    
+        instance.inputStream = stream;
+    
+        let elem = instance.videoElement;
+    
+        // Attach stream to video element when video element is provided.
+        if (elem) {
+            elem.srcObject = stream;
+    
+            elem.onloadedmetadata = function (e) {
+                elem.play();
+            };
+        }
+    
+        return new Promise(function (resolve) {
+            resolve(stream);
+        });
+    }
+
     // From https://webrtchacks.com/limit-webrtc-bandwidth-sdp/
     function setBitrateLimit(sdp, media, bitrate) {
 
@@ -778,6 +811,11 @@ function addMethod(instance) {
     instance.getDisplayMedia = function (constraints) {
 
         return getDisplayMedia(constraints);
+    };
+
+    instance.getMediaStream = function (stream) {
+
+        return getMediaStream(stream);
     };
 
     instance.startStreaming = function (connectionUrl, connectionConfig) {

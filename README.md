@@ -42,7 +42,7 @@ const ovenLivekit = OvenLiveKit.create();
 ovenLivekit.getUserMedia().then(function () {
 
     // Got device stream and start streaming to OvenMediaEngine
-    ovenLivekit.startStreaming('wss://your_oven_media_engine:3333/app/stream?direction=send');
+    ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
 });
 ```
 ### Quick demo

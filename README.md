@@ -73,7 +73,7 @@ $ npm run start
 - [`Media APIs`](#)
     - `instance.attachMedia(videoElement)`
     - `instance.getUserMedia()`
-    - `instance.getMediaStream(mediaStream)`
+    - `instance.setMediaStream(mediaStream)`
 - [`Streaming APIs`](#)
     - `instance.startStreaming()`
     - `instance.stopStreaming()`
@@ -247,7 +247,7 @@ ovenLivekit.getUserMedia(constraints).then(function (stream) {
 - This API is the most important API in OvenLiveKit. Make the OvenLiveKit streamable by getting the media stream from the user input device. You can get the media stream from any user input device you want using the `constraints` parameter. The device ID to be used in the `constraints` parameter can also be obtained from `OvenLiveKit.getDevices()`.
 - For natural behavior, you can have the browser automatically select the device stream without passing a `constraints` parameter. However, if you want to control the device stream strictly (e.g., specify input devices, video resolution, video frame rates), you can control it by passing the constraints parameter.
 
-#### `instance.getMediaStream(stream)`
+#### `instance.setMediaStream(stream)`
 - parameters
     - stream: [MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream) - The valid MediaStream you want OvenLiveKit to utilize.
 - returns Promise
@@ -255,7 +255,7 @@ ovenLivekit.getUserMedia(constraints).then(function (stream) {
         - stream: [MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream) - Returns the same stream provided as an input, confirming its successful attachment.
     - rejected
         - error: Throws an error if an invalid MediaStream is provided.
-- The `getMediaStream` function is designed to let developers directly attach an external or pre-existing MediaStream. This can be particularly useful when you're sourcing the stream not directly from user input devices, but other origins.
+- The `setMediaStream` function is designed to let developers directly attach an external or pre-existing MediaStream. This can be particularly useful when you're sourcing the stream not directly from user input devices, but other origins.
 
 
 ### Streaming APIs

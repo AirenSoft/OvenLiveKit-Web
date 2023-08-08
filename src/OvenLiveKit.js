@@ -289,7 +289,7 @@ function addMethod(instance) {
             });
     }
 
-    function getMediaStream(stream) {
+    function setMediaStream(stream) {
         // Check if a valid stream is provided
         if (!stream || !(stream instanceof MediaStream)) {
             
@@ -813,9 +813,9 @@ function addMethod(instance) {
         return getDisplayMedia(constraints);
     };
 
-    instance.getMediaStream = function (stream) {
+    instance.setMediaStream = function (stream) {
 
-        return getMediaStream(stream);
+        return setMediaStream(stream);
     };
 
     instance.startStreaming = function (connectionUrl, connectionConfig) {

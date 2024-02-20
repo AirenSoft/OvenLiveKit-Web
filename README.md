@@ -44,6 +44,13 @@ ovenLivekit.getUserMedia().then(function () {
     // Got device stream and start streaming to OvenMediaEngine
     ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
 });
+
+// Or you can get media stream of your display. Choose either user device or display.
+ovenLivekit.getDisplayMedia().then(function () {
+
+    // Got device stream and start streaming to OvenMediaEngine
+    ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
+});
 ```
 ### Quick demo
 You can see a quick demo in action by cloning the repository.
@@ -73,6 +80,7 @@ $ npm run start
 - [`Media APIs`](#)
     - `instance.attachMedia(videoElement)`
     - `instance.getUserMedia()`
+    - `instance.getDisplayMedia()`
     - `instance.setMediaStream(mediaStream)`
 - [`Streaming APIs`](#)
     - `instance.startStreaming()`
@@ -119,7 +127,7 @@ To make the library lightweight and easy to use, only callback options are imple
 - parameters 
     - error: Various Type of Error
 - A callback that receives any errors that occur in an instance of OvenLiveKit.
-- Errors are could occur from `getUserMedia`, `webSocket`, or `peerConnection`.
+- Errors are could occur from `getUserMedia`, `getDisplayMedia`, `webSocket`, or `peerConnection`.
 
 ##### `callbacks.connected`
 - type
@@ -221,13 +229,31 @@ const ovenLivekit = OvenLiveKit.create();
 // Attaching video element for playing device stream
 ovenLivekit.attachMedia(document.getElementById('myVideo'));
 
+const constraint = {
+  audio: true,
+  video: true
+};
+
 // Gets a device stream with a constraint that specifies the type of media to request.
 ovenLivekit.getUserMedia(constraints).then(function (stream) {
 
     // Got device stream. Ready for streaming.
+     ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
 }).catch(function (error) {
 
     // Failed to get device stream.
+    console.error("Error", error);
+});
+
+// Display media also works in the same way.
+ovenLivekit.getDisplayMedia(constraints).then(function (stream) {
+
+    // Got device stream. Ready for streaming.
+     ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
+}).catch(function (error) {
+
+    // Failed to get device stream.
+    console.error("Error", error);
 });
 ```
 #### `instance.attachMedia(videoElement)`
@@ -246,6 +272,16 @@ ovenLivekit.getUserMedia(constraints).then(function (stream) {
         - error: Throws error while getting the stream from the user device.
 - This API is the most important API in OvenLiveKit. Make the OvenLiveKit streamable by getting the media stream from the user input device. You can get the media stream from any user input device you want using the `constraints` parameter. The device ID to be used in the `constraints` parameter can also be obtained from `OvenLiveKit.getDevices()`.
 - For natural behavior, you can have the browser automatically select the device stream without passing a `constraints` parameter. However, if you want to control the device stream strictly (e.g., specify input devices, video resolution, video frame rates), you can control it by passing the constraints parameter.
+
+#### `instance.getDisplayMedia(constraints)`
+- parameters 
+    - constraints: [MediaStreamConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia#parameters)
+- returns Promise
+    - resolved
+        - stream: [MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream). You can use this stream for whatever you need.
+    - rejected
+        - error: Throws error while getting the stream from the display.
+- Captures the entire screen, application window, or browser tab.
 
 #### `instance.setMediaStream(stream)`
 - parameters

@@ -1,7 +1,12 @@
 const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const config = [
     {
+        devServer: {
+            port: 8085,
+            allowedHosts: "all"
+        },
         mode: 'development',
         entry: "./src/OvenLiveKit.js",
         output: {
@@ -10,7 +15,12 @@ const config = [
             library: "OvenLiveKit",
             libraryTarget: "umd",
             libraryExport: "default",
-        }
+        },
+        plugins: [
+            new HtmlWebpackPlugin({
+                template: "./index.html"
+            })
+        ]
     }
 ];
 

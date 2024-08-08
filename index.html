@@ -9,8 +9,7 @@
 </head>
 
 <body>
-    <p>Your user device Stream (local)</p>
-    <video id="localVideo" controls src="" style="width: 480px; height: 270px;"></video>
+    
     <p>Sending Stream to OvenMediaEngine running at AirenSoft(South Korea)</p>
 
     <p>Check playback at
@@ -19,12 +18,62 @@
             OvenPlayer Demo
         </a>
     </p>
-    <script src="https://cdn.jsdelivr.net/npm/ovenlivekit@latest/dist/OvenLiveKit.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/ovenlivekit@latest/dist/OvenLiveKit.min.js"></script> -->
+    <!-- add OvenLiveKit from dist -->
+    <script src="OvenLiveKit.js"></script>
     <script>
 
-        let ovenLivekit = OvenLiveKit.create();
+        function addQueryParam(key, value) {
+            // Récupérer l'URL actuelle
+            let url = new URL(window.location);
+        
+            // Ajouter ou mettre à jour le paramètre de requête
+            url.searchParams.set(key, value);
+        
+            // Utiliser history.replaceState() pour mettre à jour l'URL sans recharger la page
+            history.replaceState(null, '', url);
+        }
 
-        ovenLivekit.attachMedia(document.getElementById('localVideo'));
+        let ovenLivekit = OvenLiveKit.create();
+        console.log('ovenLivekit', ovenLivekit)
+       
+        async function startProduce() {                        
+            let produceUrl = document.getElementById('produceUrl').value;           
+            addQueryParam('produceUrl', produceUrl);
+            let device = ovenLivekit.mediaDevices({
+                errorHandler: (error) => {
+                    console.log('error', error);
+                }, 
+                videoElement: document.getElementById('localVideo')
+            });
+
+            await device.getUserMedia({
+                audio: true,
+                video: true
+            });
+
+            ovenLivekit.produce(produceUrl, device.getInputStream(), {
+                errorHandler: (error) => {
+                    console.log('error', error);
+                }
+            });
+            
+        }
+
+        function startConsume() {
+            let consumeUrl = document.getElementById('consumeUrl').value;
+            addQueryParam('consumeUrl', consumeUrl);
+            ovenLivekit.consume(consumeUrl, document.getElementById('remoteVideo'), {
+                onReady: (error) => {
+                    document.getElementById('remoteVideo').play();
+                }
+            });
+        }
+
+        //ovenLivekit.attachMedia(document.getElementById('localVideo'));
+        
+
+        /*ovenLivekit.attachMedia(document.getElementById('localVideo'));
 
         ovenLivekit.getUserMedia({
             audio: true,
@@ -33,9 +82,86 @@
 
             // Or set your OvenMediaEngine's WebRTC Provider URL
             ovenLivekit.startStreaming('wss://dev2.airensoft.com:3333/ovenspace/test_stream?direction=send&transport=tcp')
-        });
+        });*/
 
     </script>
+
+    <table>
+        <tr>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <p>Local Stream (from your device)</p>
+                            <video id="localVideo" controls src="" style="width: 480px; height: 270px;"></video>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input id="produceUrl" type="text" placeholder="Produce URL">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button id="startProduce" onclick="startProduce()">Start Produce</button>
+                        </td>
+                    </tr>
+                </table>                
+            </td>            
+       
+            <td>
+                <table>
+                    <tr>
+                        <td >
+                            <p>Remote Stream</p>
+                            <video muted="true" id="remoteVideo" controls src="" style="width: 480px; height: 270px;"></video>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input id="consumeUrl" type="text" placeholder="Consume URL">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button id="startConsume" onclick="startConsume()">Start consume</button>
+                        </td>
+                    </tr>
+                </table>               
+            </td>           
+        </tr>
+    </table>
+    <script>
+        //retrieve url parameters
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        //if consume url is provided, put in input value
+        var consumeUrl = getParameterByName('consumeUrl');
+        if (consumeUrl) {
+            document.getElementById('consumeUrl').value = consumeUrl;
+        }
+        //the same for produce
+        var produceUrl = getParameterByName('produceUrl');
+        if (produceUrl) {
+            document.getElementById('produceUrl').value = produceUrl;
+        }        
+    </script>
+    <style>
+        input {
+            width: 90%;
+        }
+        td {
+            text-align: center;
+        }
+    </style>
 </body>
 
 </html>

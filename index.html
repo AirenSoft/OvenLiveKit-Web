@@ -2,40 +2,44 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OvenLiveKit for Web Quick Start</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OvenLiveKit for Web Quick Start</title>
 </head>
 
 <body>
-    <p>Your user device Stream (local)</p>
-    <video id="localVideo" controls src="" style="width: 480px; height: 270px;"></video>
-    <p>Sending Stream to OvenMediaEngine running at AirenSoft(South Korea)</p>
+  <p>Your user device Stream (local)</p>
+  <video id="localVideo" controls src="" style="width: 480px; height: 270px;"></video>
+  <p>Sending Stream to OvenMediaEngine running at AirenSoft(South Korea)</p>
 
-    <p>Check playback at
-        <a href="https://demo.ovenplayer.com/#sources=%5B%7B%22id%22%3A0%2C%22label%22%3Anull%2C%22file%22%3A%22wss%3A%2F%2Fdev2.airensoft.com%3A3333%2Fovenspace%2Ftest_stream%22%2C%22type%22%3A%22webrtc%22%7D%5D&lowLatency=false&liveDelay=false"
-            target="_blank">
-            OvenPlayer Demo
-        </a>
-    </p>
-    <script src="https://cdn.jsdelivr.net/npm/ovenlivekit@latest/dist/OvenLiveKit.min.js"></script>
-    <script>
+  <p>Check playback at
+    <a href="https://demo.ovenplayer.com/#sources=%5B%7B%22id%22%3A0%2C%22label%22%3Anull%2C%22file%22%3A%22wss%3A%2F%2Fdev2.airensoft.com%3A3333%2Fovenspace%2Ftest_stream%22%2C%22type%22%3A%22webrtc%22%7D%5D&lowLatency=false&liveDelay=false"
+      target="_blank">
+      OvenPlayer Demo
+    </a>
+  </p>
+  <script src="https://cdn.jsdelivr.net/npm/ovenlivekit@latest/dist/OvenLiveKit.min.js"></script>
+  <script>
 
-        let ovenLivekit = OvenLiveKit.create();
+    let ovenLivekit = OvenLiveKit.create();
 
-        ovenLivekit.attachMedia(document.getElementById('localVideo'));
+    ovenLivekit.attachMedia(document.getElementById('localVideo'));
 
-        ovenLivekit.getUserMedia({
-            audio: true,
-            video: true
-        }).then(function (stream) {
+    ovenLivekit.getUserMedia({
+      audio: true,
+      video: true
+    }).then(function (stream) {
 
-            // Or set your OvenMediaEngine's WebRTC Provider URL
-            ovenLivekit.startStreaming('wss://dev2.airensoft.com:3333/ovenspace/test_stream?direction=send&transport=tcp')
-        });
+      // Set your whip endpoint
+      ovenLivekit.startStreaming('https://your-whip-endpoint.com', {
+        httpHeaders: {
+          'Authorization': 'Bearer token'
+        }
+      });
+    });
 
-    </script>
+  </script>
 </body>
 
 </html>

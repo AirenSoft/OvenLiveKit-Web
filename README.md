@@ -9,9 +9,10 @@ OvenLiveKit for Web is a JavaScript-based Live Streaming Encoder that supports W
 OvenSpace is a sub-second latency streaming demo service using [OvenMediaEngine](https://github.com/AirenSoft/OvenMediaEngine), [OvenPlayer](https://github.com/AirenSoft/OvenPlayer) and [OvenLiveKit](https://github.com/AirenSoft/OvenLiveKit-Web). You can experience OvenLiveKit in the **[OvenSpace Demo](https://space.ovenplayer.com/)** and see examples of how it can be applied in the [OvenSpace Repository](https://github.com/AirenSoft/OvenSpace).
 
 ## Features
-* Streaming to OvenMediaEngine's WebRTC Provider.  
+* Support WebRTC-HTTP ingestion protocol (WHIP) -Since 1.3.0
+* Streaming to OvenMediaEngine's WebRTC Provider.
 	* Implement [OvenMediaEngine's signaling protocol](https://airensoft.gitbook.io/ovenmediaengine/live-source/webrtc-beta#custom-webrtc-producer)
-* Built-in Device Capture.
+* Built-in Device, Screen Capture.
 * Set the Quality of the Input Stream.
 
 ## Quick Start
@@ -42,14 +43,14 @@ const ovenLivekit = OvenLiveKit.create();
 ovenLivekit.getUserMedia().then(function () {
 
     // Got device stream and start streaming to OvenMediaEngine
-    ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
+    ovenLivekit.startStreaming('https://your_oven_media_engine:3334/app/stream?direction=whip');
 });
 
 // Or you can get media stream of your display. Choose either user device or display.
 ovenLivekit.getDisplayMedia().then(function () {
 
     // Got device stream and start streaming to OvenMediaEngine
-    ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
+    ovenLivekit.startStreaming('https://your_oven_media_engine:3334/app/stream?direction=whip');
 });
 ```
 ### Quick demo
@@ -238,7 +239,7 @@ const constraint = {
 ovenLivekit.getUserMedia(constraints).then(function (stream) {
 
     // Got device stream. Ready for streaming.
-     ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
+     ovenLivekit.startStreaming('https://your_oven_media_engine:3334/app/stream?direction=whip');
 }).catch(function (error) {
 
     // Failed to get device stream.
@@ -249,7 +250,7 @@ ovenLivekit.getUserMedia(constraints).then(function (stream) {
 ovenLivekit.getDisplayMedia(constraints).then(function (stream) {
 
     // Got device stream. Ready for streaming.
-     ovenLivekit.startStreaming('wss://your_oven_media_engine:3334/app/stream?direction=send');
+     ovenLivekit.startStreaming('https://your_oven_media_engine:3334/app/stream?direction=whip');
 }).catch(function (error) {
 
     // Failed to get device stream.
@@ -319,6 +320,13 @@ ovenLivekit.getUserMedia().then(function () {
 - When this API is called, the media stream starts to be streamed according to OvenMediaEngine's signaling protocol.
 
 #### `ConnectionConfig`
+
+##### `httpHeaders` - Since 1.3.0
+- type
+  - `{ [key: string]: string}`
+- If set adds http headers to http request.
+- example
+  - `{'Authorization': 'Bearer token'}`
 
 ##### `preferredVideoFormat`
 - type

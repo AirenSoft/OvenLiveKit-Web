@@ -491,9 +491,34 @@ function addMethod(instance) {
     }
 
     for (const track of instance.inputStream.getTracks()) {
-      //You could add simulcast too here
       console.log(logHeader, 'Adding track: ', track);
-      peerConnection.addTransceiver(track, { 'direction': 'sendonly' });
+
+      const transceiverConfig = {
+        direction: 'sendonly'
+      };
+
+      // Add simulcast layers if configured
+      const simulcastConfig = instance.connectionConfig.simulcast;
+
+      if (track.kind === 'video' && simulcastConfig && simulcastConfig.length > 0) {
+
+        transceiverConfig.sendEncodings = [];
+
+        for (let i = 0; i < simulcastConfig.length; i++) {
+
+          const layer = {
+            rid: i,
+            active: true,
+            ...simulcastConfig[i]
+          };
+
+          console.log(logHeader, `Adding simulcast layer to: ${track.kind}`, layer);
+
+          transceiverConfig.sendEncodings.push(layer);
+        }
+      }
+
+      peerConnection.addTransceiver(track, transceiverConfig);
     }
 
     peerConnection.oniceconnectionstatechange = function (e) {
@@ -535,7 +560,7 @@ function addMethod(instance) {
 
     if (instance.connectionConfig.maxVideoBitrate) {
 
-      // if bandwith limit is set. modify sdp from ome to limit acceptable bandwidth of ome
+      // if bandwidth limit is set. modify sdp from ome to limit acceptable bandwidth of ome
       offer.sdp = setBitrateLimit(offer.sdp, 'video', instance.connectionConfig.maxVideoBitrate);
     }
 

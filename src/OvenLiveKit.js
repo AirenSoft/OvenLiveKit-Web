@@ -570,7 +570,10 @@ function addMethod(instance) {
     }
 
     if (instance.connectionConfig.preferredVideoFormat) {
-      offer.sdp = setPreferredVideoFormat(offer.sdp, instance.connectionConfig.preferredVideoFormat)
+      offer.sdp = setPreferredVideoFormat(offer.sdp, instance.connectionConfig.preferredVideoFormat);
+    } else {
+      // default to H264
+      offer.sdp = setPreferredVideoFormat(offer.sdp, 'H264');
     }
 
     const headers = {

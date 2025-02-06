@@ -321,9 +321,16 @@ ovenLivekit.getUserMedia().then(function () {
 
 #### `ConnectionConfig`
 
+##### `simulcast` - Since 1.4.0
+- type
+  - `RTCRtpEncodingParameters[]` [RTCRtpEncodingParameters](https://w3c.github.io/webrtc-pc/#rtcrtpencodingparameters)
+- Defines layers for simulcast transmission.
+- example
+  - `[{ rid: '1', active: true}, { rid: '2', active: true}, { rid: '3', active: true}]`
+
 ##### `httpHeaders` - Since 1.3.0
 - type
-  - `{ [key: string]: string}`
+  - `{ [key: string]: string}[]`
 - If set adds http headers to http request.
 - example
   - `{'Authorization': 'Bearer token'}`

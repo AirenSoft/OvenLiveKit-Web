@@ -21,7 +21,7 @@ OvenSpace is a sub-second latency streaming demo service using [OvenMediaEngine]
 * https://demo.ovenplayer.com/demo_input.html
 
 ### Installation
-#### OveliveKit CDN
+#### OvenLiveKit CDN
 ```html
 <script src="https://cdn.jsdelivr.net/npm/ovenlivekit@latest/dist/OvenLiveKit.min.js"></script>
 ```
@@ -214,8 +214,9 @@ OvenLiveKit.getDevices().then(function (devices) {
     console.log(error);
 });
 ```
-#### `OvenLiveKit.getDevices()`
-- This static method lists the available media input and output devices, such as microphones, cameras, headsets, and so forth. 
+#### `OvenLiveKit.getDevices(type)`
+- This method lists the available media input and output devices, such as microphones, cameras, headsets, and so forth.
+- Specify a type 'audio' to list just audio devices, 'video' for video devices, or 'both' for all devices. The default is 'both' if no type is provided.
 - `videoinput`, `audioinput`, `audiooutput`, `other` is available input/output devices. You can use `deviceId` to specify a device to streaming or `label` to make device selection UI.
 
 ### Media APIs

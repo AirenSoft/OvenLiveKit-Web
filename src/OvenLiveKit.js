@@ -1141,11 +1141,11 @@ OvenLiveKit.create = function (options) {
   return instance;
 };
 
-OvenLiveKit.getDevices = async function () {
+OvenLiveKit.getDevices = async function (type = 'both') {
 
   try {
     // First check both audio and video sources are available.
-    await getStreamForDeviceCheck('both');
+    await getStreamForDeviceCheck(type);
   } catch (e) {
 
     console.warn(logHeader, 'Can not find Video and Audio devices', e);

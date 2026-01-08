@@ -1,6 +1,6 @@
 const OvenLiveKit = {};
 
-const version = '1.5.0';
+const version = '1.5.1';
 const logHeader = 'OvenLiveKit.js :';
 const logEventHeader = 'OvenLiveKit.js ====';
 
@@ -584,8 +584,8 @@ function addMethod(instance) {
       "Content-Type": "application/sdp"
     };
 
-    // Set Oven-Capabilities header if not using simulcast
-    if (!instance.connectionConfig.simulcast || instance.connectionConfig.simulcast.length === 0) {
+    // Set Oven-Capabilities header if not over two simulcast layers.
+    if (!instance.connectionConfig.simulcast || instance.connectionConfig.simulcast.length < 2) {
 
       const videoTracks = instance.inputStream.getVideoTracks();
 
@@ -617,7 +617,7 @@ function addMethod(instance) {
         }
       }
     } else {
-      console.log(logHeader, 'Simulcast is enabled, skipping Oven-Capabilities header.');
+      console.log(logHeader, 'Over two simulcast layers are set, skipping Oven-Capabilities header.');
     }
 
     if (instance.connectionConfig.httpHeaders) {

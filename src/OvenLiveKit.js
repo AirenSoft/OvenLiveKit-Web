@@ -1,6 +1,6 @@
 const OvenLiveKit = {};
 
-const version = '1.4.0';
+const version = '1.5.0';
 const logHeader = 'OvenLiveKit.js :';
 const logEventHeader = 'OvenLiveKit.js ====';
 
@@ -228,6 +228,10 @@ function addMethod(instance) {
       .then(function (stream) {
 
         console.info(logHeader, 'Received Media Stream From Input Device', stream);
+
+        stream.getVideoTracks().forEach(function (track) {
+          console.info(logHeader, 'Video Track from input stream', track.getSettings());
+        });
 
         instance.inputStream = stream;
 
@@ -579,6 +583,42 @@ function addMethod(instance) {
     const headers = {
       "Content-Type": "application/sdp"
     };
+
+    // Set Oven-Capabilities header if not using simulcast
+    if (!instance.connectionConfig.simulcast || instance.connectionConfig.simulcast.length === 0) {
+
+      const videoTracks = instance.inputStream.getVideoTracks();
+
+      if (videoTracks && videoTracks.length === 1) {
+
+        for (let i = 0; i < videoTracks.length; i++) {
+
+          const track = videoTracks[i];
+          const settings = track.getSettings();
+
+          console.log(logHeader, 'Video track settings for Oven-Capabilities:', settings);
+
+          const width = settings.width;
+          const height = settings.height;
+
+          if (typeof width === 'number' && typeof height === 'number') {
+            console.log(logHeader, `Setting Oven-Capabilities header: max_width=${width}, max_height=${height}`);
+            headers['Oven-Capabilities'] = `max_width=${width}, max_height=${height}`;
+          }
+        }
+      } else {
+
+        if (!videoTracks || videoTracks.length === 0) {
+          console.log(logHeader, 'No video tracks found, skipping Oven-Capabilities header.');
+        }
+
+        if (videoTracks && videoTracks.length > 1) {
+          console.log(logHeader, `Multiple (${videoTracks.length}) video tracks found, skipping Oven-Capabilities header.`);
+        }
+      }
+    } else {
+      console.log(logHeader, 'Simulcast is enabled, skipping Oven-Capabilities header.');
+    }
 
     if (instance.connectionConfig.httpHeaders) {
       Object.assign(headers, instance.connectionConfig.httpHeaders);
